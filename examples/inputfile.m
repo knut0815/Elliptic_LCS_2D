@@ -39,9 +39,9 @@ PsectionRadius = 1;                        % Length of the Poincaré sections
 [Px,Py] = SettingPoincareSection(x,y,Xe,Ye,Np,PsectionRadius);
 %% Step4: Launch \lambda-lines
 mode = 'parallel';                               % Processor modes: "serial" OR "parallel"
-sgn = 1;                                         % Sign of the \lambda vector field: 1 OR -1
 Nlambda = 20;                                    % Number of \lambda-values thorugh which we search for closed orbits
 L_vec = linspace(0.85,1.15,Nlambda);             % Vector of \lambda-values
+L_vec = [L_vec L_vec];
 ArcLength = linspace(0,5,500);                   % parameterization of \lambda lines: linspace(0,arclength,NumPointsOnCurve)
 options = odeset('RelTol',1e-5,'AbsTol',1e-5);   % ODE solver options
 
@@ -53,24 +53,41 @@ dist_tol = rho;                                  % Maximum permitable distance b
 px_mat = [cat(1,Px{:}),cat(1,Px{:})];
 py_mat = [cat(1,Py{:})+rho,cat(1,Py{:})-rho];
 
-pxt = cell(1,Nlambda);   pyt = cell(1,Nlambda);
+pxt = cell(1,2*Nlambda);   pyt = cell(1,2*Nlambda);
+
+sgn = 1;                                         % Sign of the \lambda vector field
 for ii=1:Nlambda
     L = L_vec(ii);
     [pxt{ii},pyt{ii}] = LambdaLine(px_mat,py_mat,ArcLength,x,y,lambda_1,lambda_2,xi1,xi2,sgn,L,mode,options);
 end
+
+sgn = -1;                                         % Sign of the \lambda vector field
+for ii=(Nlambda+1):2*Nlambda
+    L = L_vec(ii);
+    [pxt{ii},pyt{ii}] = LambdaLine(px_mat,py_mat,ArcLength,x,y,lambda_1,lambda_2,xi1,xi2,sgn,L,mode,options);
+end
+
 %% Step5: Locating closed orbits of the \lambda vector fields.
 % Closed orbits pass through the fixed points of the Poincaré map
-px0 = cell(1,Nlambda);   py0 = cell(1,Nlambda);
-for ii=1:Nlambda
+px0 = cell(1,2*Nlambda);   py0 = cell(1,2*Nlambda);
+for ii=1:2*Nlambda
     [px0{ii},py0{ii}] = OrbitDetection(pxt{ii},pyt{ii},dist_tol);
 end
 %% Step6:
-pxt = cell(1,Nlambda);   pyt = cell(1,Nlambda);
+Pxt = cell(1,2*Nlambda);   Pyt = cell(1,2*Nlambda);
+sgn = 1;
 for ii=1:Nlambda
     if ~isempty(px0{ii})
         L = L_vec(ii);
-        [pxt{ii},pyt{ii}] = LambdaLine(px0{ii},py0{ii},ArcLength,x,y,lambda_1,lambda_2,xi1,xi2,sgn,L,mode,options);
+        [Pxt{ii},Pyt{ii}] = LambdaLine(px0{ii},py0{ii},ArcLength,x,y,lambda_1,lambda_2,xi1,xi2,sgn,L,mode,options);
+    end
+end
+sgn = -1;
+for ii=(Nlambda+1):2*Nlambda
+    if ~isempty(px0{ii})
+        L = L_vec(ii);
+        [Pxt{ii},Pyt{ii}] = LambdaLine(px0{ii},py0{ii},ArcLength,x,y,lambda_1,lambda_2,xi1,xi2,sgn,L,mode,options);
     end
 end
 %% Step7: Locate and plot the outermost closed orbits as the Lagrangian eddy boundary
-[sol_outer,sol] = Cropping_ExtractingOuter(x,y,lambda_2,pxt,pyt,Xe,Ye,L_vec); tt = toc;
+[sol_outer,sol] = Cropping_ExtractingOuter(x,y,log(lambda_2),Pxt,Pyt,Xe,Ye,L_vec); tt = toc;

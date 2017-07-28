@@ -19,7 +19,7 @@
 % Author: Alireza Hadjighasem  alirezah@ethz.ch
 % http://www.zfm.ethz.ch/~hadjighasem/index.html
 %--------------------------------------------------------------------------
-function [sol_outer,sol] = Cropping_ExtractingOuter(x,y,lambda_2,pxt,pyt,Xe,Ye,L_vec)
+function [sol_outer,sol] = Cropping_ExtractingOuter(x,y,scalar,pxt,pyt,Xe,Ye,L_vec)
     Ne = size(Xe,1);
     Npart = numel(L_vec);
     
@@ -89,7 +89,7 @@ function [sol_outer,sol] = Cropping_ExtractingOuter(x,y,lambda_2,pxt,pyt,Xe,Ye,L
     
     %- Fig.1: outer most orbits for each region
     figure; hold on;
-    imagesc(x,y,log(lambda_2)); colormap('gray'); hold on; alpha(0.5)
+    imagesc(x,y,scalar); colormap('gray'); hold on; alpha(0.5)
     
     color = parula(Ne);
     for kk=1:Ne
