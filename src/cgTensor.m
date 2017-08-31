@@ -49,8 +49,8 @@ C22 = F22.^2+F12.^2;
 trC  = C11+C22;
 detC = C11.*C22-C12.^2;
 
-lambda_1 = 0.5*trC-sqrt((0.5*trC).^2-detC);
 lambda_2 = 0.5*trC+sqrt((0.5*trC).^2-detC);
+lambda_1 = detC./lambda_2;
 
 xi1 = zeros(m,n,2);
 xi2 = zeros(m,n,2);
